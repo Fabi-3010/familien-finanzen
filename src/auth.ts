@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 const AUTH_KEY = 'familien-finanzen-auth'
 const SESSION_KEY = 'familien-finanzen-session'
 const INACTIVITY_TIMEOUT = 15 * 60 * 1000
+const FIREBASE_URL = 'https://finanzen-40851-default-rtdb.europe-west1.firebasedatabase.app'
 
 interface UserAccount {
   name: string
@@ -14,6 +15,8 @@ interface AuthData {
   users: UserAccount[]
   setupComplete: boolean
 }
+
+const emptyAuth: AuthData = { users: [], setupComplete: false }
 
 function sha256Fallback(data: Uint8Array): string {
   const K = [
@@ -77,19 +80,58 @@ export function validatePassword(password: string): string | null {
   return null
 }
 
-function loadAuthData(): AuthData {
+// --- Local storage ---
+
+function loadAuthLocal(): AuthData {
   try {
     const raw = localStorage.getItem(AUTH_KEY)
-    if (!raw) return { users: [], setupComplete: false }
+    if (!raw) return emptyAuth
     return JSON.parse(raw)
   } catch {
-    return { users: [], setupComplete: false }
+    return emptyAuth
   }
 }
 
-function saveAuthData(data: AuthData) {
+function saveAuthLocal(data: AuthData) {
   localStorage.setItem(AUTH_KEY, JSON.stringify(data))
 }
+
+// --- Firebase sync ---
+
+async function loadAuthFromFirebase(): Promise<AuthData | null> {
+  try {
+    const res = await fetch(`${FIREBASE_URL}/auth.json`)
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data || !data.users || data.users.length === 0) return null
+    return data as AuthData
+  } catch {
+    return null
+  }
+}
+
+async function saveAuthToFirebase(data: AuthData): Promise<void> {
+  try {
+    await fetch(`${FIREBASE_URL}/auth.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+  } catch {}
+}
+
+async function initAuth(): Promise<void> {
+  const remote = await loadAuthFromFirebase()
+  const local = loadAuthLocal()
+
+  if (remote && remote.users.length > 0) {
+    saveAuthLocal(remote)
+  } else if (local.users.length > 0) {
+    saveAuthToFirebase(local)
+  }
+}
+
+// --- Session ---
 
 function getSession(): { user: string; lastActivity: number } | null {
   try {
@@ -117,8 +159,10 @@ function clearSession() {
   sessionStorage.removeItem(SESSION_KEY)
 }
 
+// --- Public API ---
+
 export async function registerUser(name: string, password: string): Promise<void> {
-  const authData = loadAuthData()
+  const authData = loadAuthLocal()
   if (authData.users.find(u => u.name === name)) {
     throw new Error('Benutzer existiert bereits')
   }
@@ -126,11 +170,12 @@ export async function registerUser(name: string, password: string): Promise<void
   const passwordHash = await hashPassword(password, salt)
   authData.users.push({ name, passwordHash, salt })
   authData.setupComplete = authData.users.length >= 2
-  saveAuthData(authData)
+  saveAuthLocal(authData)
+  saveAuthToFirebase(authData)
 }
 
 export async function login(name: string, password: string): Promise<boolean> {
-  const authData = loadAuthData()
+  const authData = loadAuthLocal()
   const user = authData.users.find(u => u.name === name)
   if (!user) return false
   const hash = await hashPassword(password, user.salt)
@@ -140,7 +185,7 @@ export async function login(name: string, password: string): Promise<boolean> {
 }
 
 export async function changePassword(name: string, oldPassword: string, newPassword: string): Promise<boolean> {
-  const authData = loadAuthData()
+  const authData = loadAuthLocal()
   const user = authData.users.find(u => u.name === name)
   if (!user) return false
   const oldHash = await hashPassword(oldPassword, user.salt)
@@ -148,7 +193,8 @@ export async function changePassword(name: string, oldPassword: string, newPassw
   const newSalt = generateSalt()
   user.salt = newSalt
   user.passwordHash = await hashPassword(newPassword, newSalt)
-  saveAuthData(authData)
+  saveAuthLocal(authData)
+  saveAuthToFirebase(authData)
   return true
 }
 
@@ -157,11 +203,11 @@ export function logout() {
 }
 
 export function isSetupComplete(): boolean {
-  return loadAuthData().setupComplete
+  return loadAuthLocal().setupComplete
 }
 
 export function getRegisteredUsers(): string[] {
-  return loadAuthData().users.map(u => u.name)
+  return loadAuthLocal().users.map(u => u.name)
 }
 
 export function useAuth() {
@@ -183,8 +229,10 @@ export function useAuth() {
   }, [])
 
   useEffect(() => {
-    checkSession()
-    setLoading(false)
+    initAuth().then(() => {
+      checkSession()
+      setLoading(false)
+    })
   }, [checkSession])
 
   useEffect(() => {
