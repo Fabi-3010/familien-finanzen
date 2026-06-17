@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Lock, Eye, EyeOff, UserPlus, LogIn } from 'lucide-react'
+import { Eye, EyeOff, UserPlus, LogIn } from 'lucide-react'
 import { validatePassword, registerUser, isSetupComplete, getRegisteredUsers } from '../auth'
 
 interface Props {
