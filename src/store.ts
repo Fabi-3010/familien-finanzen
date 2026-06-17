@@ -54,7 +54,7 @@ async function saveToFirebase(daten: FinanzDaten): Promise<boolean> {
 export function useFinanzDaten() {
   const [daten, setDaten] = useState<FinanzDaten>(loadLocal)
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'offline'>('idle')
-  const saveTimer = useRef<ReturnType<typeof setTimeout>>()
+  const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const initialLoad = useRef(true)
 
   useEffect(() => {
