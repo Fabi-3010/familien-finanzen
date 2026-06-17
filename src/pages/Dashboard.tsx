@@ -100,7 +100,7 @@ export default function Dashboard({ daten }: Props) {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: number) => formatEuro(value)}
+                      formatter={(value) => formatEuro(Number(value))}
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                     />
                   </PieChart>
