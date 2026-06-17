@@ -31,7 +31,7 @@ export default function App() {
       <Sidebar currentUser={currentUser} onLogout={logout} syncStatus={syncStatus} />
       <main className="flex-1 md:ml-0 p-4 md:p-6 lg:p-8 pt-16 md:pt-6">
         <Routes>
-          <Route path="/" element={<Dashboard daten={daten} />} />
+          <Route path="/" element={<Dashboard daten={daten} currentUser={currentUser} />} />
           <Route path="/einkommen" element={<Einkommen daten={daten} updateDaten={updateDaten} />} />
           <Route path="/fixkosten" element={<Fixkosten daten={daten} updateDaten={updateDaten} />} />
           <Route path="/versicherungen" element={<Versicherungen daten={daten} updateDaten={updateDaten} />} />

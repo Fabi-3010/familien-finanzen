@@ -1,8 +1,10 @@
-import { useState } from 'react'
-import { Plus, Trash2, ShoppingCart, Filter } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+import { Plus, Trash2, ShoppingCart, Filter, Camera } from 'lucide-react'
 import type { FinanzDaten, Ausgabe } from '../types'
 import { formatEuro, generateId, AUSGABE_KATEGORIEN, KATEGORIE_FARBEN } from '../store'
 import Modal from '../components/Modal'
+import ReceiptScanner from '../components/ReceiptScanner'
 
 interface Props {
   daten: FinanzDaten
@@ -10,12 +12,25 @@ interface Props {
 }
 
 export default function Ausgaben({ daten, updateDaten }: Props) {
+  const location = useLocation()
   const [modalOpen, setModalOpen] = useState(false)
+  const [scannerOpen, setScannerOpen] = useState(false)
   const [filterKategorie, setFilterKategorie] = useState<string>('alle')
   const [filterMonat, setFilterMonat] = useState(() => {
     const d = new Date()
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
   })
+
+  useEffect(() => {
+    const state = location.state as { openScanner?: boolean; openAdd?: boolean } | null
+    if (state?.openScanner) {
+      setScannerOpen(true)
+      window.history.replaceState({}, '')
+    } else if (state?.openAdd) {
+      setModalOpen(true)
+      window.history.replaceState({}, '')
+    }
+  }, [location.state])
 
   const gefiltert = daten.ausgaben
     .filter(a => {
@@ -34,6 +49,7 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
   function handleAdd(a: Ausgabe) {
     updateDaten(prev => ({ ...prev, ausgaben: [...prev.ausgaben, a] }))
     setModalOpen(false)
+    setScannerOpen(false)
   }
 
   function handleDelete(id: string) {
@@ -42,17 +58,23 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex items-center justify-between mb-6 gap-3">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-navy-950">Ausgaben</h1>
           <p className="text-navy-500 text-sm mt-1">
             {gefiltert.length} Ausgaben · {formatEuro(gesamtGefiltert)}
           </p>
         </div>
-        <button onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800 transition-colors">
-          <Plus size={16} /> Hinzufügen
-        </button>
+        <div className="flex gap-2 shrink-0">
+          <button onClick={() => setScannerOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors active:scale-95">
+            <Camera size={16} /> <span className="hidden sm:inline">Scannen</span>
+          </button>
+          <button onClick={() => setModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2.5 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800 transition-colors active:scale-95">
+            <Plus size={16} /> <span className="hidden sm:inline">Hinzufügen</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4">
@@ -78,27 +100,32 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
           </div>
           <h3 className="font-semibold text-navy-900 mb-2">Keine Ausgaben gefunden</h3>
           <p className="text-sm text-navy-400 mb-4">Erfasse deine täglichen Ausgaben</p>
-          <button onClick={() => setModalOpen(true)} className="px-4 py-2 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800">
-            Ausgabe erfassen
-          </button>
+          <div className="flex justify-center gap-3">
+            <button onClick={() => setScannerOpen(true)} className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 flex items-center gap-1.5">
+              <Camera size={14} /> Scannen
+            </button>
+            <button onClick={() => setModalOpen(true)} className="px-4 py-2 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800">
+              Manuell erfassen
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-2">
           {gefiltert.map(a => (
-            <div key={a.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+            <div key={a.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                   style={{ backgroundColor: (KATEGORIE_FARBEN[a.kategorie] || '#94a3b8') + '20' }}>
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: KATEGORIE_FARBEN[a.kategorie] || '#94a3b8' }} />
                 </div>
-                <div>
-                  <p className="font-medium text-navy-900">{a.beschreibung}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-navy-900 truncate">{a.beschreibung}</p>
                   <p className="text-xs text-navy-400">
                     {AUSGABE_KATEGORIEN[a.kategorie]} · {a.person} · {new Date(a.datum).toLocaleDateString('de-DE')}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 shrink-0">
                 <span className="text-base font-bold text-red-500">-{formatEuro(a.betrag)}</span>
                 <button onClick={() => handleDelete(a.id)} className="p-2 hover:bg-red-50 rounded-lg transition-colors">
                   <Trash2 size={16} className="text-red-400" />
@@ -112,6 +139,14 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Ausgabe erfassen">
         <AusgabeForm personen={daten.personen} onSubmit={handleAdd} />
       </Modal>
+
+      {scannerOpen && (
+        <ReceiptScanner
+          personen={daten.personen}
+          onSubmit={handleAdd}
+          onClose={() => setScannerOpen(false)}
+        />
+      )}
     </div>
   )
 }

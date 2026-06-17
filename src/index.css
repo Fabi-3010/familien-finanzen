@@ -25,6 +25,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #f0f4f8;
   color: #243b53;
+  -webkit-tap-highlight-color: transparent;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -52,5 +53,11 @@ input[type="number"] {
 }
 
 .animate-slide-up {
-  animation: slideUp 0.35s ease-out;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
