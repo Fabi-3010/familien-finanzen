@@ -8,8 +8,11 @@ import {
   Wallet,
   Menu,
   X,
+  LogOut,
+  KeyRound,
 } from 'lucide-react'
 import { useState } from 'react'
+import ChangePassword from './ChangePassword'
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -20,8 +23,16 @@ const navItems = [
   { to: '/budget', icon: PiggyBank, label: 'Budget' },
 ]
 
-export default function Sidebar() {
+interface Props {
+  currentUser: string
+  onLogout: () => void
+}
+
+export default function Sidebar({ currentUser, onLogout }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [pwModalOpen, setPwModalOpen] = useState(false)
+
+  const initials = currentUser.slice(0, 2).toUpperCase()
 
   return (
     <>
@@ -82,18 +93,36 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-navy-800">
+        <div className="p-4 border-t border-navy-800 space-y-3">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-navy-700 flex items-center justify-center text-xs font-bold">
-              RF
+              {initials}
             </div>
-            <div className="text-sm">
-              <p className="font-medium">Familie Reiner</p>
-              <p className="text-navy-400 text-xs">2 Mitglieder</p>
+            <div className="text-sm flex-1">
+              <p className="font-medium">{currentUser}</p>
+              <p className="text-navy-400 text-xs">Angemeldet</p>
             </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPwModalOpen(true)}
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs text-navy-300 hover:text-white hover:bg-navy-800 rounded-lg transition-colors"
+            >
+              <KeyRound size={13} />
+              Passwort
+            </button>
+            <button
+              onClick={onLogout}
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs text-navy-300 hover:text-red-400 hover:bg-navy-800 rounded-lg transition-colors"
+            >
+              <LogOut size={13} />
+              Abmelden
+            </button>
           </div>
         </div>
       </aside>
+
+      <ChangePassword open={pwModalOpen} onClose={() => setPwModalOpen(false)} userName={currentUser} />
     </>
   )
 }
