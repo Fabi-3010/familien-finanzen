@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { FinanzDaten } from './types'
 
 const STORAGE_KEY = 'familien-finanzen-data'
+const FIREBASE_URL = 'https://finanzen-40851-default-rtdb.europe-west1.firebasedatabase.app'
 
 const defaultDaten: FinanzDaten = {
   fixkosten: [],
@@ -11,7 +12,7 @@ const defaultDaten: FinanzDaten = {
   personen: ['Reiner', 'Partner'],
 }
 
-function loadDaten(): FinanzDaten {
+function loadLocal(): FinanzDaten {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultDaten
@@ -21,25 +22,75 @@ function loadDaten(): FinanzDaten {
   }
 }
 
-function saveDaten(daten: FinanzDaten) {
+function saveLocal(daten: FinanzDaten) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(daten))
 }
 
+async function loadFromFirebase(): Promise<{ data: FinanzDaten; empty: boolean } | null> {
+  try {
+    const res = await fetch(`${FIREBASE_URL}/finanzdaten.json`)
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data) return { data: defaultDaten, empty: true }
+    return { data: { ...defaultDaten, ...data }, empty: false }
+  } catch {
+    return null
+  }
+}
+
+async function saveToFirebase(daten: FinanzDaten): Promise<boolean> {
+  try {
+    const res = await fetch(`${FIREBASE_URL}/finanzdaten.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(daten),
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
 export function useFinanzDaten() {
-  const [daten, setDaten] = useState<FinanzDaten>(loadDaten)
+  const [daten, setDaten] = useState<FinanzDaten>(loadLocal)
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'offline'>('idle')
+  const saveTimer = useRef<ReturnType<typeof setTimeout>>()
+  const initialLoad = useRef(true)
 
   useEffect(() => {
-    saveDaten(daten)
-  }, [daten])
-
-  const updateDaten = useCallback((updater: (prev: FinanzDaten) => FinanzDaten) => {
-    setDaten(prev => {
-      const next = updater(prev)
-      return next
+    loadFromFirebase().then(result => {
+      if (result) {
+        if (!result.empty) {
+          setDaten(result.data)
+          saveLocal(result.data)
+        }
+        setSyncStatus('synced')
+      } else {
+        setSyncStatus('offline')
+      }
+      initialLoad.current = false
     })
   }, [])
 
-  return { daten, updateDaten }
+  useEffect(() => {
+    if (initialLoad.current) return
+
+    saveLocal(daten)
+
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      setSyncStatus('syncing')
+      saveToFirebase(daten).then(ok => {
+        setSyncStatus(ok ? 'synced' : 'offline')
+      })
+    }, 500)
+  }, [daten])
+
+  const updateDaten = useCallback((updater: (prev: FinanzDaten) => FinanzDaten) => {
+    setDaten(prev => updater(prev))
+  }, [])
+
+  return { daten, updateDaten, syncStatus }
 }
 
 export function generateId(): string {

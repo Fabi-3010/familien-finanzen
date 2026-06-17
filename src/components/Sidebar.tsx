@@ -10,6 +10,9 @@ import {
   X,
   LogOut,
   KeyRound,
+  Cloud,
+  CloudOff,
+  Loader2,
 } from 'lucide-react'
 import { useState } from 'react'
 import ChangePassword from './ChangePassword'
@@ -26,9 +29,17 @@ const navItems = [
 interface Props {
   currentUser: string
   onLogout: () => void
+  syncStatus: 'idle' | 'syncing' | 'synced' | 'offline'
 }
 
-export default function Sidebar({ currentUser, onLogout }: Props) {
+const syncLabels = {
+  idle: { icon: Cloud, text: 'Verbinde...', color: 'text-navy-500' },
+  syncing: { icon: Loader2, text: 'Synchronisiert...', color: 'text-amber-400' },
+  synced: { icon: Cloud, text: 'Cloud-Sync aktiv', color: 'text-emerald-400' },
+  offline: { icon: CloudOff, text: 'Offline-Modus', color: 'text-red-400' },
+}
+
+export default function Sidebar({ currentUser, onLogout, syncStatus }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [pwModalOpen, setPwModalOpen] = useState(false)
 
@@ -94,6 +105,16 @@ export default function Sidebar({ currentUser, onLogout }: Props) {
         </nav>
 
         <div className="p-4 border-t border-navy-800 space-y-3">
+          {(() => {
+            const s = syncLabels[syncStatus]
+            const SyncIcon = s.icon
+            return (
+              <div className={`flex items-center gap-2 px-2 py-1.5 rounded-lg bg-navy-900/50 ${s.color}`}>
+                <SyncIcon size={13} className={syncStatus === 'syncing' ? 'animate-spin' : ''} />
+                <span className="text-xs">{s.text}</span>
+              </div>
+            )
+          })()}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-navy-700 flex items-center justify-center text-xs font-bold">
               {initials}

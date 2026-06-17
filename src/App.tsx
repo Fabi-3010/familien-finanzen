@@ -11,7 +11,7 @@ import { useFinanzDaten } from './store'
 import { useAuth } from './auth'
 
 export default function App() {
-  const { daten, updateDaten } = useFinanzDaten()
+  const { daten, updateDaten, syncStatus } = useFinanzDaten()
   const { currentUser, loading, login, logout } = useAuth()
 
   if (loading) {
@@ -28,7 +28,7 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen bg-navy-50">
-      <Sidebar currentUser={currentUser} onLogout={logout} />
+      <Sidebar currentUser={currentUser} onLogout={logout} syncStatus={syncStatus} />
       <main className="flex-1 md:ml-0 p-4 md:p-6 lg:p-8 pt-16 md:pt-6">
         <Routes>
           <Route path="/" element={<Dashboard daten={daten} />} />
