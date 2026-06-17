@@ -1,0 +1,185 @@
+import { useState } from 'react'
+import { Plus, Trash2, ShoppingCart, Filter } from 'lucide-react'
+import type { FinanzDaten, Ausgabe } from '../types'
+import { formatEuro, generateId, AUSGABE_KATEGORIEN, KATEGORIE_FARBEN } from '../store'
+import Modal from '../components/Modal'
+
+interface Props {
+  daten: FinanzDaten
+  updateDaten: (updater: (prev: FinanzDaten) => FinanzDaten) => void
+}
+
+export default function Ausgaben({ daten, updateDaten }: Props) {
+  const [modalOpen, setModalOpen] = useState(false)
+  const [filterKategorie, setFilterKategorie] = useState<string>('alle')
+  const [filterMonat, setFilterMonat] = useState(() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  })
+
+  const gefiltert = daten.ausgaben
+    .filter(a => {
+      if (filterKategorie !== 'alle' && a.kategorie !== filterKategorie) return false
+      if (filterMonat) {
+        const [y, m] = filterMonat.split('-').map(Number)
+        const d = new Date(a.datum)
+        if (d.getFullYear() !== y || d.getMonth() + 1 !== m) return false
+      }
+      return true
+    })
+    .sort((a, b) => new Date(b.datum).getTime() - new Date(a.datum).getTime())
+
+  const gesamtGefiltert = gefiltert.reduce((s, a) => s + a.betrag, 0)
+
+  function handleAdd(a: Ausgabe) {
+    updateDaten(prev => ({ ...prev, ausgaben: [...prev.ausgaben, a] }))
+    setModalOpen(false)
+  }
+
+  function handleDelete(id: string) {
+    updateDaten(prev => ({ ...prev, ausgaben: prev.ausgaben.filter(a => a.id !== id) }))
+  }
+
+  return (
+    <div className="animate-fade-in">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-navy-950">Ausgaben</h1>
+          <p className="text-navy-500 text-sm mt-1">
+            {gefiltert.length} Ausgaben · {formatEuro(gesamtGefiltert)}
+          </p>
+        </div>
+        <button onClick={() => setModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800 transition-colors">
+          <Plus size={16} /> Hinzufügen
+        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Filter size={16} className="text-navy-400" />
+          <span className="text-sm font-medium text-navy-700">Filter</span>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <input type="month" value={filterMonat} onChange={e => setFilterMonat(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
+          <select value={filterKategorie} onChange={e => setFilterKategorie(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent bg-white">
+            <option value="alle">Alle Kategorien</option>
+            {Object.entries(AUSGABE_KATEGORIEN).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {gefiltert.length === 0 ? (
+        <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
+          <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <ShoppingCart size={28} className="text-orange-600" />
+          </div>
+          <h3 className="font-semibold text-navy-900 mb-2">Keine Ausgaben gefunden</h3>
+          <p className="text-sm text-navy-400 mb-4">Erfasse deine täglichen Ausgaben</p>
+          <button onClick={() => setModalOpen(true)} className="px-4 py-2 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800">
+            Ausgabe erfassen
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {gefiltert.map(a => (
+            <div key={a.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: (KATEGORIE_FARBEN[a.kategorie] || '#94a3b8') + '20' }}>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: KATEGORIE_FARBEN[a.kategorie] || '#94a3b8' }} />
+                </div>
+                <div>
+                  <p className="font-medium text-navy-900">{a.beschreibung}</p>
+                  <p className="text-xs text-navy-400">
+                    {AUSGABE_KATEGORIEN[a.kategorie]} · {a.person} · {new Date(a.datum).toLocaleDateString('de-DE')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-base font-bold text-red-500">-{formatEuro(a.betrag)}</span>
+                <button onClick={() => handleDelete(a.id)} className="p-2 hover:bg-red-50 rounded-lg transition-colors">
+                  <Trash2 size={16} className="text-red-400" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Ausgabe erfassen">
+        <AusgabeForm personen={daten.personen} onSubmit={handleAdd} />
+      </Modal>
+    </div>
+  )
+}
+
+function AusgabeForm({ personen, onSubmit }: { personen: string[]; onSubmit: (a: Ausgabe) => void }) {
+  const [betrag, setBetrag] = useState('')
+  const [beschreibung, setBeschreibung] = useState('')
+  const [kategorie, setKategorie] = useState<Ausgabe['kategorie']>('lebensmittel')
+  const [datum, setDatum] = useState(() => new Date().toISOString().split('T')[0])
+  const [person, setPerson] = useState(personen[0] || '')
+
+  function handleSubmit(ev: React.FormEvent) {
+    ev.preventDefault()
+    if (!betrag || !beschreibung) return
+    onSubmit({ id: generateId(), betrag: parseFloat(betrag), beschreibung, kategorie, datum, person })
+  }
+
+  const schnellKategorien: Ausgabe['kategorie'][] = ['lebensmittel', 'restaurant', 'tanken', 'haushalt', 'freizeit']
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-navy-700 mb-1">Betrag</label>
+        <input type="number" step="0.01" value={betrag} onChange={e => setBetrag(e.target.value)} placeholder="0,00" autoFocus
+          className="w-full px-3 py-3 border border-gray-200 rounded-xl text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-navy-700 mb-2">Schnellauswahl</label>
+        <div className="flex flex-wrap gap-2">
+          {schnellKategorien.map(k => (
+            <button key={k} type="button" onClick={() => setKategorie(k)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                kategorie === k ? 'bg-navy-900 text-white' : 'bg-gray-100 text-navy-700 hover:bg-gray-200'
+              }`}>
+              {AUSGABE_KATEGORIEN[k]}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-navy-700 mb-1">Beschreibung</label>
+        <input type="text" value={beschreibung} onChange={e => setBeschreibung(e.target.value)} placeholder="z.B. Wocheneinkauf REWE"
+          className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-navy-700 mb-1">Kategorie</label>
+        <select value={kategorie} onChange={e => setKategorie(e.target.value as Ausgabe['kategorie'])}
+          className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent bg-white">
+          {Object.entries(AUSGABE_KATEGORIEN).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-navy-700 mb-1">Datum</label>
+          <input type="date" value={datum} onChange={e => setDatum(e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-navy-700 mb-1">Person</label>
+          <select value={person} onChange={e => setPerson(e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent bg-white">
+            {personen.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+      </div>
+      <button type="submit" className="w-full py-2.5 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800 transition-colors">
+        Speichern
+      </button>
+    </form>
+  )
+}

@@ -1,0 +1,16 @@
+{
+  "name": "FamilienFinanzen",
+  "short_name": "Finanzen",
+  "description": "Familien-Finanzmanager — Deine Finanzen im Griff",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#1e3a5f",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

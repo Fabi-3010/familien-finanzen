@@ -1,0 +1,99 @@
+import { NavLink } from 'react-router-dom'
+import {
+  LayoutDashboard,
+  Receipt,
+  Shield,
+  ShoppingCart,
+  PiggyBank,
+  Wallet,
+  Menu,
+  X,
+} from 'lucide-react'
+import { useState } from 'react'
+
+const navItems = [
+  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/einkommen', icon: Wallet, label: 'Einkommen' },
+  { to: '/fixkosten', icon: Receipt, label: 'Fixkosten' },
+  { to: '/versicherungen', icon: Shield, label: 'Versicherungen' },
+  { to: '/ausgaben', icon: ShoppingCart, label: 'Ausgaben' },
+  { to: '/budget', icon: PiggyBank, label: 'Budget' },
+]
+
+export default function Sidebar() {
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  return (
+    <>
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-50 bg-navy-900 text-white p-2 rounded-lg shadow-lg"
+      >
+        <Menu size={24} />
+      </button>
+
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/40 z-40"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`
+          fixed md:static inset-y-0 left-0 z-50
+          w-64 bg-navy-950 text-white flex flex-col
+          transition-transform duration-300 ease-in-out
+          ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
+      >
+        <div className="p-5 border-b border-navy-800">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-bold tracking-tight">FamilienFinanzen</h1>
+              <p className="text-xs text-navy-400 mt-0.5">powered by FlowGate AI</p>
+            </div>
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="md:hidden text-navy-400 hover:text-white"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+
+        <nav className="flex-1 p-3 space-y-1">
+          {navItems.map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-navy-800 text-white'
+                    : 'text-navy-300 hover:bg-navy-900 hover:text-white'
+                }`
+              }
+            >
+              <Icon size={18} />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="p-4 border-t border-navy-800">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-navy-700 flex items-center justify-center text-xs font-bold">
+              RF
+            </div>
+            <div className="text-sm">
+              <p className="font-medium">Familie Reiner</p>
+              <p className="text-navy-400 text-xs">2 Mitglieder</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </>
+  )
+}
