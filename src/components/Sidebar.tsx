@@ -71,9 +71,12 @@ export default function Sidebar({ currentUser, onLogout, syncStatus }: Props) {
       >
         <div className="p-5 border-b border-navy-800">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-lg font-bold tracking-tight">FamilienFinanzen</h1>
-              <p className="text-xs text-navy-400 mt-0.5">powered by FlowGate AI</p>
+            <div className="flex items-center gap-3">
+              <img src="/icon-192.svg" alt="" className="h-10 w-10 rounded-lg object-contain" />
+              <div>
+                <h1 className="text-lg font-bold tracking-tight">FamilienFinanzen</h1>
+                <p className="text-xs text-navy-400 mt-0.5">powered by FlowGate AI</p>
+              </div>
             </div>
             <button
               onClick={() => setMobileOpen(false)}

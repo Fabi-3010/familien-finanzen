@@ -13,11 +13,8 @@ export default function Login({ onLogin }: Props) {
     <div className="min-h-screen bg-navy-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-navy-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl font-bold text-white">FF</span>
-          </div>
+          <img src="/logo.svg" alt="FamilienFinanzen" className="h-32 mx-auto mb-3" />
           <h1 className="text-2xl font-bold text-navy-950">FamilienFinanzen</h1>
-          <p className="text-sm text-navy-400 mt-1">powered by FlowGate AI</p>
         </div>
 
         {setupDone ? <LoginForm onLogin={onLogin} /> : <SetupWizard onComplete={() => window.location.reload()} />}
