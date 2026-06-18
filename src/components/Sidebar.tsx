@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   PiggyBank,
   Wallet,
+  Lightbulb,
   Menu,
   X,
   LogOut,
@@ -13,6 +14,8 @@ import {
   Cloud,
   CloudOff,
   Loader2,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { useState } from 'react'
 import ChangePassword from './ChangePassword'
@@ -24,12 +27,15 @@ const navItems = [
   { to: '/versicherungen', icon: Shield, label: 'Versicherungen' },
   { to: '/ausgaben', icon: ShoppingCart, label: 'Ausgaben' },
   { to: '/budget', icon: PiggyBank, label: 'Budget' },
+  { to: '/analyse', icon: Lightbulb, label: 'Spar-Analyse' },
 ]
 
 interface Props {
   currentUser: string
   onLogout: () => void
   syncStatus: 'idle' | 'syncing' | 'synced' | 'offline'
+  dark: boolean
+  onToggleDark: () => void
 }
 
 const syncLabels = {
@@ -39,7 +45,7 @@ const syncLabels = {
   offline: { icon: CloudOff, text: 'Offline-Modus', color: 'text-red-400' },
 }
 
-export default function Sidebar({ currentUser, onLogout, syncStatus }: Props) {
+export default function Sidebar({ currentUser, onLogout, syncStatus, dark, onToggleDark }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [pwModalOpen, setPwModalOpen] = useState(false)
 
@@ -128,6 +134,13 @@ export default function Sidebar({ currentUser, onLogout, syncStatus }: Props) {
             </div>
           </div>
           <div className="flex gap-2">
+            <button
+              onClick={onToggleDark}
+              className="flex items-center justify-center gap-1.5 py-1.5 px-2 text-xs text-navy-300 hover:text-white hover:bg-navy-800 rounded-lg transition-colors"
+              title={dark ? 'Hell' : 'Dunkel'}
+            >
+              {dark ? <Sun size={13} /> : <Moon size={13} />}
+            </button>
             <button
               onClick={() => setPwModalOpen(true)}
               className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs text-navy-300 hover:text-white hover:bg-navy-800 rounded-lg transition-colors"

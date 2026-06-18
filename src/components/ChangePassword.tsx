@@ -57,22 +57,22 @@ export default function ChangePassword({ open, onClose, userName }: Props) {
     <Modal open={open} onClose={handleClose} title="Passwort ändern">
       {success ? (
         <div className="text-center py-6">
-          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center mx-auto mb-3">
             <span className="text-emerald-600 text-lg">✓</span>
           </div>
-          <p className="font-medium text-navy-900">Passwort geändert</p>
+          <p className="font-medium text-navy-900 dark:text-gray-100">Passwort geändert</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-navy-700 mb-1">Aktuelles Passwort</label>
+            <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-1">Aktuelles Passwort</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={oldPassword}
                 onChange={e => setOldPassword(e.target.value)}
                 autoFocus
-                className="w-full px-3 py-2.5 pr-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
+                className="w-full px-3 py-2.5 pr-10 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
               />
               <button
                 type="button"
@@ -85,31 +85,31 @@ export default function ChangePassword({ open, onClose, userName }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-navy-700 mb-1">Neues Passwort</label>
+            <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-1">Neues Passwort</label>
             <input
               type={showPassword ? 'text' : 'password'}
               value={newPassword}
               onChange={e => setNewPassword(e.target.value)}
               placeholder="Min. 6 Zeichen + Sonderzeichen"
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
+              className="w-full px-3 py-2.5 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
             />
             <div className="mt-1.5 flex gap-2">
-              <span className={`text-xs px-2 py-0.5 rounded-md ${newPassword.length >= 6 ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-navy-400'}`}>
+              <span className={`text-xs px-2 py-0.5 rounded-md ${newPassword.length >= 6 ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-navy-400 dark:text-gray-500'}`}>
                 {newPassword.length >= 6 ? '✓' : '○'} 6+ Zeichen
               </span>
-              <span className={`text-xs px-2 py-0.5 rounded-md ${/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(newPassword) ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-navy-400'}`}>
+              <span className={`text-xs px-2 py-0.5 rounded-md ${/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(newPassword) ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-navy-400 dark:text-gray-500'}`}>
                 {/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(newPassword) ? '✓' : '○'} Sonderzeichen
               </span>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-navy-700 mb-1">Neues Passwort bestätigen</label>
+            <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-1">Neues Passwort bestätigen</label>
             <input
               type={showPassword ? 'text' : 'password'}
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
+              className="w-full px-3 py-2.5 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
             />
           </div>
 

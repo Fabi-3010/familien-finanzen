@@ -60,8 +60,8 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
     <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6 gap-3">
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold text-navy-950">Ausgaben</h1>
-          <p className="text-navy-500 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-navy-950 dark:text-white">Ausgaben</h1>
+          <p className="text-navy-500 dark:text-gray-400 text-sm mt-1">
             {gefiltert.length} Ausgaben · {formatEuro(gesamtGefiltert)}
           </p>
         </div>
@@ -77,16 +77,16 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 mb-4">
         <div className="flex items-center gap-2 mb-3">
-          <Filter size={16} className="text-navy-400" />
+          <Filter size={16} className="text-navy-400 dark:text-gray-500" />
           <span className="text-sm font-medium text-navy-700">Filter</span>
         </div>
         <div className="flex flex-wrap gap-3">
           <input type="month" value={filterMonat} onChange={e => setFilterMonat(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
+            className="px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
           <select value={filterKategorie} onChange={e => setFilterKategorie(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent bg-white">
+            className="px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent bg-white dark:bg-slate-700 text-navy-950 dark:text-white">
             <option value="alle">Alle Kategorien</option>
             {Object.entries(AUSGABE_KATEGORIEN).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
@@ -94,12 +94,12 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
       </div>
 
       {gefiltert.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
-          <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 shadow-sm border border-gray-100 dark:border-slate-700 text-center">
+          <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <ShoppingCart size={28} className="text-orange-600" />
           </div>
           <h3 className="font-semibold text-navy-900 mb-2">Keine Ausgaben gefunden</h3>
-          <p className="text-sm text-navy-400 mb-4">Erfasse deine täglichen Ausgaben</p>
+          <p className="text-sm text-navy-400 dark:text-gray-500 mb-4">Erfasse deine täglichen Ausgaben</p>
           <div className="flex justify-center gap-3">
             <button onClick={() => setScannerOpen(true)} className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 flex items-center gap-1.5">
               <Camera size={14} /> Scannen
@@ -112,7 +112,7 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
       ) : (
         <div className="space-y-2">
           {gefiltert.map(a => (
-            <div key={a.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between gap-3">
+            <div key={a.id} className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                   style={{ backgroundColor: (KATEGORIE_FARBEN[a.kategorie] || '#94a3b8') + '20' }}>
@@ -120,14 +120,14 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="font-medium text-navy-900 truncate">{a.beschreibung}</p>
-                  <p className="text-xs text-navy-400">
+                  <p className="text-xs text-navy-400 dark:text-gray-500">
                     {AUSGABE_KATEGORIEN[a.kategorie]} · {a.person} · {new Date(a.datum).toLocaleDateString('de-DE')}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span className="text-base font-bold text-red-500">-{formatEuro(a.betrag)}</span>
-                <button onClick={() => handleDelete(a.id)} className="p-2 hover:bg-red-50 rounded-lg transition-colors">
+                <button onClick={() => handleDelete(a.id)} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
                   <Trash2 size={16} className="text-red-400" />
                 </button>
               </div>
@@ -169,17 +169,17 @@ function AusgabeForm({ personen, onSubmit }: { personen: string[]; onSubmit: (a:
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-navy-700 mb-1">Betrag</label>
+        <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-1">Betrag</label>
         <input type="number" step="0.01" value={betrag} onChange={e => setBetrag(e.target.value)} placeholder="0,00" autoFocus
           className="w-full px-3 py-3 border border-gray-200 rounded-xl text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
       </div>
       <div>
-        <label className="block text-sm font-medium text-navy-700 mb-2">Schnellauswahl</label>
+        <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-2">Schnellauswahl</label>
         <div className="flex flex-wrap gap-2">
           {schnellKategorien.map(k => (
             <button key={k} type="button" onClick={() => setKategorie(k)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                kategorie === k ? 'bg-navy-900 text-white' : 'bg-gray-100 text-navy-700 hover:bg-gray-200'
+                kategorie === k ? 'bg-navy-900 text-white' : 'bg-gray-100 text-navy-700 hover:bg-gray-200 dark:bg-slate-700'
               }`}>
               {AUSGABE_KATEGORIEN[k]}
             </button>
@@ -187,27 +187,27 @@ function AusgabeForm({ personen, onSubmit }: { personen: string[]; onSubmit: (a:
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-navy-700 mb-1">Beschreibung</label>
+        <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-1">Beschreibung</label>
         <input type="text" value={beschreibung} onChange={e => setBeschreibung(e.target.value)} placeholder="z.B. Wocheneinkauf REWE"
-          className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
+          className="w-full px-3 py-2.5 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
       </div>
       <div>
-        <label className="block text-sm font-medium text-navy-700 mb-1">Kategorie</label>
+        <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-1">Kategorie</label>
         <select value={kategorie} onChange={e => setKategorie(e.target.value as Ausgabe['kategorie'])}
-          className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent bg-white">
+          className="w-full px-3 py-2.5 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent bg-white dark:bg-slate-700 text-navy-950 dark:text-white">
           {Object.entries(AUSGABE_KATEGORIEN).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-navy-700 mb-1">Datum</label>
+          <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-1">Datum</label>
           <input type="date" value={datum} onChange={e => setDatum(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
+            className="w-full px-3 py-2.5 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-navy-700 mb-1">Person</label>
+          <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-1">Person</label>
           <select value={person} onChange={e => setPerson(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent bg-white">
+            className="w-full px-3 py-2.5 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent bg-white dark:bg-slate-700 text-navy-950 dark:text-white">
             {personen.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
         </div>

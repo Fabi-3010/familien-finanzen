@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-navy-50: #f0f4f8;
   --color-navy-100: #d9e2ec;
@@ -26,6 +28,11 @@ body {
   background: #f0f4f8;
   color: #243b53;
   -webkit-tap-highlight-color: transparent;
+}
+
+.dark body {
+  background: #0f172a;
+  color: #e2e8f0;
 }
 
 input[type="number"]::-webkit-inner-spin-button,

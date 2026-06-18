@@ -58,39 +58,39 @@ export default function Budget({ daten }: Props) {
     <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-navy-950">Budget</h1>
-          <p className="text-navy-500 text-sm mt-1">Soll/Ist-Vergleich</p>
+          <h1 className="text-2xl font-bold text-navy-950 dark:text-white">Budget</h1>
+          <p className="text-navy-500 dark:text-gray-400 text-sm mt-1">Soll/Ist-Vergleich</p>
         </div>
         <input type="month" value={selectedMonat} onChange={e => setSelectedMonat(e.target.value)}
-          className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
+          className="px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
       </div>
 
       {einkommenGesamt === 0 ? (
-        <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
-          <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 shadow-sm border border-gray-100 dark:border-slate-700 text-center">
+          <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <PiggyBank size={28} className="text-amber-600" />
           </div>
           <h3 className="font-semibold text-navy-900 mb-2">Budget-Planung starten</h3>
-          <p className="text-sm text-navy-400">Füge zuerst dein Einkommen hinzu, um dein Budget zu berechnen</p>
+          <p className="text-sm text-navy-400 dark:text-gray-500">Füge zuerst dein Einkommen hinzu, um dein Budget zu berechnen</p>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp size={16} className="text-emerald-500" />
                 <span className="text-xs font-medium text-navy-500">Budget für Ausgaben</span>
               </div>
-              <p className="text-xl font-bold text-navy-900">{formatEuro(budgetFuerAusgaben)}</p>
-              <p className="text-xs text-navy-400">Einkommen minus Festkosten</p>
+              <p className="text-xl font-bold text-navy-900 dark:text-gray-100">{formatEuro(budgetFuerAusgaben)}</p>
+              <p className="text-xs text-navy-400 dark:text-gray-500">Einkommen minus Festkosten</p>
             </div>
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingDown size={16} className="text-orange-500" />
                 <span className="text-xs font-medium text-navy-500">Ausgegeben</span>
               </div>
-              <p className="text-xl font-bold text-navy-900">{formatEuro(ausgabenGesamt)}</p>
-              <p className="text-xs text-navy-400">{verbrauchProzent.toFixed(0)}% vom Budget</p>
+              <p className="text-xl font-bold text-navy-900 dark:text-gray-100">{formatEuro(ausgabenGesamt)}</p>
+              <p className="text-xs text-navy-400 dark:text-gray-500">{verbrauchProzent.toFixed(0)}% vom Budget</p>
             </div>
             <div className={`rounded-2xl p-4 shadow-sm border ${restBudget >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'}`}>
               <div className="flex items-center gap-2 mb-1">
@@ -105,9 +105,9 @@ export default function Budget({ daten }: Props) {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-6">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 mb-6">
             <h2 className="text-base font-semibold text-navy-950 mb-3">Budget-Fortschritt</h2>
-            <div className="h-4 bg-gray-100 rounded-full overflow-hidden mb-2">
+            <div className="h-4 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden mb-2">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   verbrauchProzent > 100 ? 'bg-red-500' : verbrauchProzent > 80 ? 'bg-amber-500' : 'bg-emerald-500'
@@ -115,7 +115,7 @@ export default function Budget({ daten }: Props) {
                 style={{ width: `${Math.min(verbrauchProzent, 100)}%` }}
               />
             </div>
-            <div className="flex justify-between text-xs text-navy-400">
+            <div className="flex justify-between text-xs text-navy-400 dark:text-gray-500">
               <span>0 %</span>
               <span className="font-medium">{verbrauchProzent.toFixed(0)}% verbraucht</span>
               <span>100 %</span>
@@ -123,7 +123,7 @@ export default function Budget({ daten }: Props) {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100">
               <h2 className="text-base font-semibold text-navy-950 mb-4">Ausgaben nach Kategorie</h2>
               {kategorieAusgaben.length > 0 ? (
                 <div className="space-y-3">
@@ -136,9 +136,9 @@ export default function Budget({ daten }: Props) {
                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: k.color }} />
                             <span className="text-navy-700">{k.kategorie}</span>
                           </div>
-                          <span className="font-medium text-navy-900">{formatEuro(k.betrag)}</span>
+                          <span className="font-medium text-navy-900 dark:text-gray-100">{formatEuro(k.betrag)}</span>
                         </div>
-                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-1.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                           <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: k.color }} />
                         </div>
                       </div>
@@ -150,7 +150,7 @@ export default function Budget({ daten }: Props) {
               )}
             </div>
 
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100">
               <h2 className="text-base font-semibold text-navy-950 mb-4">Letzte 6 Monate</h2>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">

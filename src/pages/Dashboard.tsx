@@ -73,13 +73,18 @@ export default function Dashboard({ daten, currentUser }: Props) {
 
   const gruss = jetzt.getHours() < 12 ? 'Guten Morgen' : jetzt.getHours() < 18 ? 'Hallo' : 'Guten Abend'
 
+  const isDark = document.documentElement.classList.contains('dark')
+  const chartTickFill = isDark ? '#94a3b8' : undefined
+  const chartGridStroke = isDark ? '#334155' : '#f1f5f9'
+  const tooltipStyle = { borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', fontSize: '13px', background: isDark ? '#1e293b' : '#fff', color: isDark ? '#e2e8f0' : '#1e293b' }
+
   return (
     <div className="animate-fade-in pb-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-navy-950">{gruss}, {currentUser}</h1>
-          <p className="text-navy-400 text-sm mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-bold text-navy-950 dark:text-white">{gruss}, {currentUser}</h1>
+          <p className="text-navy-400 dark:text-gray-500 text-sm mt-0.5">
             {jetzt.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>
@@ -98,42 +103,42 @@ export default function Dashboard({ daten, currentUser }: Props) {
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <button onClick={() => navigate('/einkommen')} className="text-left group">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md hover:border-emerald-200 transition-all">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-700 transition-all">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-1.5 rounded-lg bg-emerald-100">
+              <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
                 <TrendingUp size={16} className="text-emerald-600" />
               </div>
-              <ChevronRight size={14} className="text-gray-300 group-hover:text-emerald-400 transition-colors" />
+              <ChevronRight size={14} className="text-gray-300 dark:text-slate-600 group-hover:text-emerald-400 transition-colors" />
             </div>
-            <p className="text-[11px] font-medium text-navy-400 uppercase tracking-wide">Einkommen</p>
-            <p className="text-lg font-bold text-navy-950 mt-0.5">{formatEuro(einkommenGesamt)}</p>
+            <p className="text-[11px] font-medium text-navy-400 dark:text-gray-500 uppercase tracking-wide">Einkommen</p>
+            <p className="text-lg font-bold text-navy-950 dark:text-white mt-0.5">{formatEuro(einkommenGesamt)}</p>
           </div>
         </button>
 
         <button onClick={() => navigate('/fixkosten')} className="text-left group">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-700 transition-all">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-1.5 rounded-lg bg-blue-100">
+              <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/40">
                 <Landmark size={16} className="text-blue-600" />
               </div>
-              <ChevronRight size={14} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+              <ChevronRight size={14} className="text-gray-300 dark:text-slate-600 group-hover:text-blue-400 transition-colors" />
             </div>
-            <p className="text-[11px] font-medium text-navy-400 uppercase tracking-wide">Fixkosten</p>
-            <p className="text-lg font-bold text-navy-950 mt-0.5">{formatEuro(festkosten)}</p>
-            <p className="text-[10px] text-navy-400 mt-0.5">inkl. Versicherungen</p>
+            <p className="text-[11px] font-medium text-navy-400 dark:text-gray-500 uppercase tracking-wide">Fixkosten</p>
+            <p className="text-lg font-bold text-navy-950 dark:text-white mt-0.5">{formatEuro(festkosten)}</p>
+            <p className="text-[10px] text-navy-400 dark:text-gray-500 mt-0.5">inkl. Versicherungen</p>
           </div>
         </button>
 
         <button onClick={() => navigate('/ausgaben')} className="text-left group">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md hover:border-orange-200 transition-all">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md hover:border-orange-200 dark:hover:border-orange-700 transition-all">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-1.5 rounded-lg bg-orange-100">
+              <div className="p-1.5 rounded-lg bg-orange-100 dark:bg-orange-900/40">
                 <TrendingDown size={16} className="text-orange-600" />
               </div>
-              <ChevronRight size={14} className="text-gray-300 group-hover:text-orange-400 transition-colors" />
+              <ChevronRight size={14} className="text-gray-300 dark:text-slate-600 group-hover:text-orange-400 transition-colors" />
             </div>
-            <p className="text-[11px] font-medium text-navy-400 uppercase tracking-wide">Ausgaben</p>
-            <p className="text-lg font-bold text-navy-950 mt-0.5">{formatEuro(ausgabenGesamt)}</p>
+            <p className="text-[11px] font-medium text-navy-400 dark:text-gray-500 uppercase tracking-wide">Ausgaben</p>
+            <p className="text-lg font-bold text-navy-950 dark:text-white mt-0.5">{formatEuro(ausgabenGesamt)}</p>
             {ausgabenTrend !== 0 && (
               <p className={`text-[10px] mt-0.5 font-medium ${ausgabenTrend > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
                 {ausgabenTrend > 0 ? '+' : ''}{ausgabenTrend.toFixed(0)}% vs. Vormonat
@@ -145,16 +150,16 @@ export default function Dashboard({ daten, currentUser }: Props) {
         <div className="text-left">
           <div className={`rounded-2xl p-4 shadow-sm border transition-all ${
             verfuegbar >= 0
-              ? 'bg-emerald-50 border-emerald-100'
-              : 'bg-red-50 border-red-100'
+              ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-800/50'
+              : 'bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-800/50'
           }`}>
             <div className="flex items-center justify-between mb-2">
-              <div className={`p-1.5 rounded-lg ${verfuegbar >= 0 ? 'bg-emerald-200' : 'bg-red-200'}`}>
-                {verfuegbar >= 0 ? <Wallet size={16} className="text-emerald-700" /> : <AlertTriangle size={16} className="text-red-700" />}
+              <div className={`p-1.5 rounded-lg ${verfuegbar >= 0 ? 'bg-emerald-200 dark:bg-emerald-800/50' : 'bg-red-200 dark:bg-red-800/50'}`}>
+                {verfuegbar >= 0 ? <Wallet size={16} className="text-emerald-700 dark:text-emerald-400" /> : <AlertTriangle size={16} className="text-red-700 dark:text-red-400" />}
               </div>
             </div>
-            <p className="text-[11px] font-medium text-navy-400 uppercase tracking-wide">Verfügbar</p>
-            <p className={`text-lg font-bold mt-0.5 ${verfuegbar >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+            <p className="text-[11px] font-medium text-navy-400 dark:text-gray-500 uppercase tracking-wide">Verfügbar</p>
+            <p className={`text-lg font-bold mt-0.5 ${verfuegbar >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
               {formatEuro(verfuegbar)}
             </p>
           </div>
@@ -163,17 +168,17 @@ export default function Dashboard({ daten, currentUser }: Props) {
 
       {/* Budget Progress */}
       {einkommenGesamt > 0 && (
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 mb-6">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <PiggyBank size={16} className="text-navy-500" />
-              <span className="text-sm font-semibold text-navy-900">Budget-Status</span>
+              <PiggyBank size={16} className="text-navy-500 dark:text-gray-400" />
+              <span className="text-sm font-semibold text-navy-900 dark:text-gray-100">Budget-Status</span>
             </div>
-            <button onClick={() => navigate('/budget')} className="text-xs text-navy-400 hover:text-navy-600 flex items-center gap-0.5">
+            <button onClick={() => navigate('/budget')} className="text-xs text-navy-400 dark:text-gray-500 hover:text-navy-600 dark:hover:text-gray-300 flex items-center gap-0.5">
               Details <ChevronRight size={12} />
             </button>
           </div>
-          <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-700 ${
                 budgetProzent > 90 ? 'bg-red-500' : budgetProzent > 70 ? 'bg-amber-500' : 'bg-emerald-500'
@@ -181,7 +186,7 @@ export default function Dashboard({ daten, currentUser }: Props) {
               style={{ width: `${budgetProzent}%` }}
             />
           </div>
-          <div className="flex justify-between mt-1.5 text-xs text-navy-400">
+          <div className="flex justify-between mt-1.5 text-xs text-navy-400 dark:text-gray-500">
             <span>{formatEuro(ausgabenGesamt)} ausgegeben</span>
             <span>{budgetProzent.toFixed(0)}% von {formatEuro(budgetFrei)}</span>
           </div>
@@ -190,8 +195,8 @@ export default function Dashboard({ daten, currentUser }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Category Breakdown */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h2 className="text-sm font-semibold text-navy-950 mb-4">Ausgaben nach Kategorie</h2>
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
+          <h2 className="text-sm font-semibold text-navy-950 dark:text-white mb-4">Ausgaben nach Kategorie</h2>
           {ausgabenNachKategorie.length > 0 ? (
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="w-40 h-40 shrink-0">
@@ -200,8 +205,7 @@ export default function Dashboard({ daten, currentUser }: Props) {
                     <Pie data={ausgabenNachKategorie} cx="50%" cy="50%" innerRadius={45} outerRadius={72} paddingAngle={3} dataKey="value">
                       {ausgabenNachKategorie.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                     </Pie>
-                    <Tooltip formatter={(value) => formatEuro(Number(value))}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '13px' }} />
+                    <Tooltip formatter={(value) => formatEuro(Number(value))} contentStyle={tooltipStyle} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -213,11 +217,11 @@ export default function Dashboard({ daten, currentUser }: Props) {
                       <div className="flex items-center justify-between text-xs mb-0.5">
                         <div className="flex items-center gap-1.5">
                           <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: k.color }} />
-                          <span className="text-navy-700">{k.name}</span>
+                          <span className="text-navy-700 dark:text-gray-300">{k.name}</span>
                         </div>
-                        <span className="font-semibold text-navy-900">{formatEuro(k.value)}</span>
+                        <span className="font-semibold text-navy-900 dark:text-gray-100">{formatEuro(k.value)}</span>
                       </div>
-                      <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-1 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: k.color }} />
                       </div>
                     </div>
@@ -231,18 +235,17 @@ export default function Dashboard({ daten, currentUser }: Props) {
         </div>
 
         {/* Spending Trend */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h2 className="text-sm font-semibold text-navy-950 mb-4">Ausgaben-Trend (6 Monate)</h2>
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
+          <h2 className="text-sm font-semibold text-navy-950 dark:text-white mb-4">Ausgaben-Trend (6 Monate)</h2>
           {trendData.some(d => d.ausgaben > 0) ? (
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={trendData} barSize={28}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                  <XAxis dataKey="monat" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value) => formatEuro(Number(value))}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '13px' }}
-                    cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} vertical={false} />
+                  <XAxis dataKey="monat" tick={{ fontSize: 11, fill: chartTickFill }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: chartTickFill }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => formatEuro(Number(value))} contentStyle={tooltipStyle}
+                    cursor={{ fill: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }} />
                   <Bar dataKey="ausgaben" fill="#f97316" radius={[6, 6, 0, 0]} name="Ausgaben" />
                 </BarChart>
               </ResponsiveContainer>
@@ -253,11 +256,11 @@ export default function Dashboard({ daten, currentUser }: Props) {
         </div>
 
         {/* Recent Expenses */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-navy-950">Letzte Buchungen</h2>
+            <h2 className="text-sm font-semibold text-navy-950 dark:text-white">Letzte Buchungen</h2>
             {letzteAusgaben.length > 0 && (
-              <button onClick={() => navigate('/ausgaben')} className="text-xs text-navy-400 hover:text-navy-600 flex items-center gap-0.5">
+              <button onClick={() => navigate('/ausgaben')} className="text-xs text-navy-400 dark:text-gray-500 hover:text-navy-600 dark:hover:text-gray-300 flex items-center gap-0.5">
                 Alle <ArrowRight size={12} />
               </button>
             )}
@@ -266,14 +269,14 @@ export default function Dashboard({ daten, currentUser }: Props) {
             <div className="space-y-1">
               {letzteAusgaben.map(a => (
                 <button key={a.id} onClick={() => navigate('/ausgaben')}
-                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left active:bg-gray-100">
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors text-left active:bg-gray-100 dark:active:bg-slate-700">
                   <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
                     style={{ backgroundColor: (KATEGORIE_FARBEN[a.kategorie] || '#94a3b8') + '15' }}>
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: KATEGORIE_FARBEN[a.kategorie] || '#94a3b8' }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-navy-900 truncate">{a.beschreibung}</p>
-                    <p className="text-[11px] text-navy-400">{AUSGABE_KATEGORIEN[a.kategorie]} · {new Date(a.datum).toLocaleDateString('de-DE')}</p>
+                    <p className="text-sm font-medium text-navy-900 dark:text-gray-100 truncate">{a.beschreibung}</p>
+                    <p className="text-[11px] text-navy-400 dark:text-gray-500">{AUSGABE_KATEGORIEN[a.kategorie]} · {new Date(a.datum).toLocaleDateString('de-DE')}</p>
                   </div>
                   <span className="text-sm font-semibold text-red-500 shrink-0">-{formatEuro(a.betrag)}</span>
                 </button>
@@ -285,12 +288,12 @@ export default function Dashboard({ daten, currentUser }: Props) {
         </div>
 
         {/* Cost Distribution */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-navy-950">Monatliche Verteilung</h2>
+            <h2 className="text-sm font-semibold text-navy-950 dark:text-white">Monatliche Verteilung</h2>
             <div className="flex items-center gap-1">
-              <ShieldCheck size={13} className="text-navy-400" />
-              <span className="text-[10px] text-navy-400">Einkommen = 100%</span>
+              <ShieldCheck size={13} className="text-navy-400 dark:text-gray-500" />
+              <span className="text-[10px] text-navy-400 dark:text-gray-500">Einkommen = 100%</span>
             </div>
           </div>
           {einkommenGesamt > 0 ? (
@@ -318,12 +321,12 @@ function CostRow({ label, value, total, color, onClick }: {
   const pct = total > 0 ? (value / total) * 100 : 0
   const Wrapper = onClick ? 'button' : 'div'
   return (
-    <Wrapper onClick={onClick} className={`w-full ${onClick ? 'hover:bg-gray-50 rounded-lg -mx-1 px-1 py-0.5 transition-colors active:bg-gray-100' : ''}`}>
+    <Wrapper onClick={onClick} className={`w-full ${onClick ? 'hover:bg-gray-50 dark:hover:bg-slate-700/50 rounded-lg -mx-1 px-1 py-0.5 transition-colors active:bg-gray-100 dark:active:bg-slate-700' : ''}`}>
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-navy-700 font-medium">{label}</span>
-        <span className="font-semibold text-navy-900">{formatEuro(value)} <span className="font-normal text-navy-400">({pct.toFixed(0)}%)</span></span>
+        <span className="text-navy-700 dark:text-gray-300 font-medium">{label}</span>
+        <span className="font-semibold text-navy-900 dark:text-gray-100">{formatEuro(value)} <span className="font-normal text-navy-400 dark:text-gray-500">({pct.toFixed(0)}%)</span></span>
       </div>
-      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: color }} />
       </div>
     </Wrapper>
@@ -331,5 +334,5 @@ function CostRow({ label, value, total, color, onClick }: {
 }
 
 function EmptyState({ text }: { text: string }) {
-  return <div className="text-center py-8 text-navy-400 text-xs">{text}</div>
+  return <div className="text-center py-8 text-navy-400 dark:text-gray-500 text-xs">{text}</div>
 }
