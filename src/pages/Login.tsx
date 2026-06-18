@@ -13,7 +13,7 @@ export default function Login({ onLogin }: Props) {
     <div className="min-h-screen bg-navy-50 dark:bg-slate-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <img src="/logo.svg" alt="FamilienFinanzen" className="h-32 mx-auto mb-3" />
+          <img src="/logo.svg" alt="FamilienFinanzen" className="h-56 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-navy-950 dark:text-white">FamilienFinanzen</h1>
         </div>
 
