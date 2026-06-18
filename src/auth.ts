@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-const AUTH_KEY = 'familien-finanzen-auth'
+const AUTH_KEY = 'familien-finanzen-auth-v2'
 const SESSION_KEY = 'familien-finanzen-session'
 const INACTIVITY_TIMEOUT = 15 * 60 * 1000
 const FIREBASE_URL = 'https://finanzen-40851-default-rtdb.europe-west1.firebasedatabase.app'
