@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Plus, Trash2, ShoppingCart, Filter, Camera } from 'lucide-react'
+import { Plus, Trash2, ShoppingCart, Filter, Camera, Pencil } from 'lucide-react'
 import type { FinanzDaten, Ausgabe } from '../types'
 import { formatEuro, generateId, AUSGABE_KATEGORIEN, KATEGORIE_FARBEN } from '../store'
 import Modal from '../components/Modal'
@@ -15,6 +15,7 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
   const location = useLocation()
   const [modalOpen, setModalOpen] = useState(false)
   const [scannerOpen, setScannerOpen] = useState(false)
+  const [editAusgabe, setEditAusgabe] = useState<Ausgabe | null>(null)
   const [filterKategorie, setFilterKategorie] = useState<string>('alle')
   const [filterMonat, setFilterMonat] = useState(() => {
     const d = new Date()
@@ -50,6 +51,11 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
     updateDaten(prev => ({ ...prev, ausgaben: [...prev.ausgaben, a] }))
     setModalOpen(false)
     setScannerOpen(false)
+  }
+
+  function handleUpdate(a: Ausgabe) {
+    updateDaten(prev => ({ ...prev, ausgaben: prev.ausgaben.map(x => x.id === a.id ? a : x) }))
+    setEditAusgabe(null)
   }
 
   function handleDelete(id: string) {
@@ -125,10 +131,13 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-base font-bold text-red-500">-{formatEuro(a.betrag)}</span>
+              <div className="flex items-center gap-1 shrink-0">
+                <span className="text-base font-bold text-red-500 mr-1">-{formatEuro(a.betrag)}</span>
+                <button onClick={() => setEditAusgabe(a)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                  <Pencil size={14} className="text-navy-400 dark:text-gray-500" />
+                </button>
                 <button onClick={() => handleDelete(a.id)} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
-                  <Trash2 size={16} className="text-red-400" />
+                  <Trash2 size={14} className="text-red-400" />
                 </button>
               </div>
             </div>
@@ -139,6 +148,12 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Ausgabe erfassen">
         <AusgabeForm personen={daten.personen} onSubmit={handleAdd} />
       </Modal>
+
+      {editAusgabe && (
+        <Modal open={true} onClose={() => setEditAusgabe(null)} title="Ausgabe bearbeiten">
+          <AusgabeForm personen={daten.personen} onSubmit={handleUpdate} initial={editAusgabe} />
+        </Modal>
+      )}
 
       {scannerOpen && (
         <ReceiptScanner
@@ -151,17 +166,17 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
   )
 }
 
-function AusgabeForm({ personen, onSubmit }: { personen: string[]; onSubmit: (a: Ausgabe) => void }) {
-  const [betrag, setBetrag] = useState('')
-  const [beschreibung, setBeschreibung] = useState('')
-  const [kategorie, setKategorie] = useState<Ausgabe['kategorie']>('lebensmittel')
-  const [datum, setDatum] = useState(() => new Date().toISOString().split('T')[0])
-  const [person, setPerson] = useState(personen[0] || '')
+function AusgabeForm({ personen, onSubmit, initial }: { personen: string[]; onSubmit: (a: Ausgabe) => void; initial?: Ausgabe }) {
+  const [betrag, setBetrag] = useState(initial ? initial.betrag.toFixed(2) : '')
+  const [beschreibung, setBeschreibung] = useState(initial?.beschreibung ?? '')
+  const [kategorie, setKategorie] = useState<Ausgabe['kategorie']>(initial?.kategorie ?? 'lebensmittel')
+  const [datum, setDatum] = useState(initial?.datum ?? new Date().toISOString().split('T')[0])
+  const [person, setPerson] = useState(initial?.person ?? personen[0] ?? '')
 
   function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault()
     if (!betrag || !beschreibung) return
-    onSubmit({ id: generateId(), betrag: parseFloat(betrag), beschreibung, kategorie, datum, person })
+    onSubmit({ id: initial?.id ?? generateId(), betrag: parseFloat(betrag), beschreibung, kategorie, datum, person })
   }
 
   const schnellKategorien: Ausgabe['kategorie'][] = ['lebensmittel', 'restaurant', 'tanken', 'haushalt', 'freizeit']
@@ -171,7 +186,7 @@ function AusgabeForm({ personen, onSubmit }: { personen: string[]; onSubmit: (a:
       <div>
         <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-1">Betrag</label>
         <input type="number" step="0.01" value={betrag} onChange={e => setBetrag(e.target.value)} placeholder="0,00" autoFocus
-          className="w-full px-3 py-3 border border-gray-200 rounded-xl text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
+          className="w-full px-3 py-3 border border-gray-200 dark:border-slate-600 rounded-xl text-lg font-semibold bg-white dark:bg-slate-700 text-navy-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent" />
       </div>
       <div>
         <label className="block text-sm font-medium text-navy-700 dark:text-gray-300 mb-2">Schnellauswahl</label>
@@ -179,7 +194,7 @@ function AusgabeForm({ personen, onSubmit }: { personen: string[]; onSubmit: (a:
           {schnellKategorien.map(k => (
             <button key={k} type="button" onClick={() => setKategorie(k)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                kategorie === k ? 'bg-navy-900 text-white' : 'bg-gray-100 text-navy-700 hover:bg-gray-200 dark:bg-slate-700'
+                kategorie === k ? 'bg-navy-900 text-white' : 'bg-gray-100 dark:bg-slate-700 text-navy-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
               }`}>
               {AUSGABE_KATEGORIEN[k]}
             </button>

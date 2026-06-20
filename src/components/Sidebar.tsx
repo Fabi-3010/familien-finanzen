@@ -55,7 +55,8 @@ export default function Sidebar({ currentUser, onLogout, syncStatus, dark, onTog
     <>
       <button
         onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-navy-900 text-white p-2 rounded-lg shadow-lg"
+        className="md:hidden fixed left-4 z-50 bg-navy-900 text-white p-2 rounded-lg shadow-lg"
+        style={{ top: 'calc(var(--sat) + 1rem)' }}
       >
         <Menu size={24} />
       </button>
@@ -75,7 +76,7 @@ export default function Sidebar({ currentUser, onLogout, syncStatus, dark, onTog
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
       >
-        <div className="p-5 border-b border-navy-800">
+        <div className="p-5 border-b border-navy-800" style={{ paddingTop: 'calc(var(--sat) + 1.25rem)' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img src="/icon-192.svg" alt="" className="h-10 w-10 rounded-lg object-contain" />
@@ -113,7 +114,7 @@ export default function Sidebar({ currentUser, onLogout, syncStatus, dark, onTog
           ))}
         </nav>
 
-        <div className="p-4 border-t border-navy-800 space-y-3">
+        <div className="p-4 border-t border-navy-800 space-y-3" style={{ paddingBottom: 'calc(var(--sab) + 1rem)' }}>
           {(() => {
             const s = syncLabels[syncStatus]
             const SyncIcon = s.icon

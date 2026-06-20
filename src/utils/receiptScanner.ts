@@ -17,7 +17,7 @@ const STORE_CATEGORIES: Record<string, Ausgabe['kategorie']> = {
   'bäckerei': 'restaurant', backwerk: 'restaurant', starbucks: 'restaurant',
   aral: 'tanken', shell: 'tanken', esso: 'tanken', jet: 'tanken', total: 'tanken', tankstelle: 'tanken',
   'h&m': 'kleidung', zara: 'kleidung', 'c&a': 'kleidung', primark: 'kleidung', kik: 'kleidung',
-  apotheke: 'gesundheit', rossmann: 'gesundheit', dm: 'gesundheit',
+  apotheke: 'gesundheit', rossmann: 'gesundheit', dm: 'gesundheit', 'dm-drogerie': 'gesundheit',
   bauhaus: 'haushalt', obi: 'haushalt', hornbach: 'haushalt', ikea: 'haushalt', toom: 'haushalt',
   mytoys: 'kinder', smyths: 'kinder',
   saturn: 'freizeit', mediamarkt: 'freizeit', 'media markt': 'freizeit', kino: 'freizeit',
@@ -33,7 +33,7 @@ export function detectCategory(text: string): Ausgabe['kategorie'] {
 
 export function extractAmount(text: string): number | null {
   const totalPatterns = [
-    /(?:summe|total|gesamt|zu zahlen|betrag|endbetrag)[:\s]*€?\s*(\d{1,6}[,.]\d{2})/gi,
+    /(?:summe|total|gesamt|zu zahlen|betrag|endbetrag|gesamtbetrag|bar|ec)[:\s]*€?\s*(\d{1,6}[,.]\d{2})/gi,
     /(\d{1,6}[,.]\d{2})\s*(?:eur|€)/gi,
   ]
 
@@ -84,5 +84,41 @@ export async function scanReceipt(
     kategorie: detectCategory(rawText),
     rawText,
     confidence: data.confidence,
+  }
+}
+
+export async function scanPdf(
+  pdfFile: File,
+  onProgress: (progress: number, status: string) => void
+): Promise<ScanResult> {
+  onProgress(10, 'PDF wird geladen...')
+
+  const pdfjsLib = await import('pdfjs-dist')
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
+
+  const arrayBuffer = await pdfFile.arrayBuffer()
+  onProgress(30, 'Text wird extrahiert...')
+
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+  let fullText = ''
+
+  for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
+    onProgress(30 + Math.round((i / pdf.numPages) * 50), `Seite ${i}/${pdf.numPages}...`)
+    const page = await pdf.getPage(i)
+    const content = await page.getTextContent()
+    const pageText = content.items
+      .map((item) => 'str' in item ? item.str : '')
+      .join(' ')
+    fullText += pageText + '\n'
+  }
+
+  onProgress(90, 'Daten werden extrahiert...')
+
+  return {
+    betrag: extractAmount(fullText),
+    beschreibung: extractStoreName(fullText),
+    kategorie: detectCategory(fullText),
+    rawText: fullText,
+    confidence: 95,
   }
 }

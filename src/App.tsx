@@ -32,7 +32,7 @@ export default function App() {
   return (
     <div className="flex min-h-screen bg-navy-50 dark:bg-slate-950">
       <Sidebar currentUser={currentUser} onLogout={logout} syncStatus={syncStatus} dark={dark} onToggleDark={toggleDark} />
-      <main className="flex-1 md:ml-0 p-4 md:p-6 lg:p-8 pt-16 md:pt-6">
+      <main className="flex-1 md:ml-0 p-4 md:p-6 lg:p-8 main-safe-top">
         <Routes>
           <Route path="/" element={<Dashboard daten={daten} currentUser={currentUser} />} />
           <Route path="/einkommen" element={<Einkommen daten={daten} updateDaten={updateDaten} />} />
