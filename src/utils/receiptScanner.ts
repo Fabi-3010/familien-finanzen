@@ -1,5 +1,4 @@
 import { createWorker } from 'tesseract.js'
-import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import type { Ausgabe } from '../types'
 
 export interface ScanResult {
@@ -59,6 +58,11 @@ function extractStoreName(text: string): string {
   return lines.length > 0 ? lines[0].trim().slice(0, 50) : 'Gescannter Beleg'
 }
 
+export function isPdfFile(file: File): boolean {
+  if (file.type === 'application/pdf') return true
+  return file.name.toLowerCase().endsWith('.pdf')
+}
+
 export async function scanReceipt(
   imageFile: File,
   onProgress: (progress: number, status: string) => void
@@ -95,16 +99,23 @@ export async function scanPdf(
   onProgress(10, 'PDF wird geladen...')
 
   const pdfjsLib = await import('pdfjs-dist')
-  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl
+
+  // Disable web worker — run on main thread for maximum compatibility
+  // Receipts are small PDFs, so main-thread processing is fast enough
+  pdfjsLib.GlobalWorkerOptions.workerSrc = ''
 
   const arrayBuffer = await pdfFile.arrayBuffer()
   onProgress(30, 'Text wird extrahiert...')
 
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+  const pdf = await pdfjsLib.getDocument({
+    data: new Uint8Array(arrayBuffer),
+    useSystemFonts: true,
+  }).promise
   let fullText = ''
 
-  for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
-    onProgress(30 + Math.round((i / pdf.numPages) * 50), `Seite ${i}/${pdf.numPages}...`)
+  const pageCount = Math.min(pdf.numPages, 5)
+  for (let i = 1; i <= pageCount; i++) {
+    onProgress(30 + Math.round((i / pageCount) * 50), `Seite ${i}/${pageCount}...`)
     const page = await pdf.getPage(i)
     const content = await page.getTextContent()
     const pageText = content.items
@@ -114,6 +125,10 @@ export async function scanPdf(
   }
 
   onProgress(90, 'Daten werden extrahiert...')
+
+  if (!fullText.trim()) {
+    throw new Error('PDF enthält keinen lesbaren Text. Versuche stattdessen ein Foto.')
+  }
 
   return {
     betrag: extractAmount(fullText),

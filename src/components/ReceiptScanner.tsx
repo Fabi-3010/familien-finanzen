@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { Camera, Upload, Loader2, CheckCircle, AlertTriangle, RotateCcw, X, FileText } from 'lucide-react'
 import type { Ausgabe } from '../types'
 import { generateId, AUSGABE_KATEGORIEN } from '../store'
-import { scanReceipt, scanPdf, type ScanResult } from '../utils/receiptScanner'
+import { scanReceipt, scanPdf, isPdfFile, type ScanResult } from '../utils/receiptScanner'
 
 interface Props {
   personen: string[]
@@ -20,6 +20,7 @@ export default function ReceiptScanner({ personen, onSubmit, onClose }: Props) {
   const [pdfName, setPdfName] = useState('')
   const [progress, setProgress] = useState(0)
   const [statusText, setStatusText] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
   const [result, setResult] = useState<ScanResult | null>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
   const uploadRef = useRef<HTMLInputElement>(null)
@@ -33,9 +34,16 @@ export default function ReceiptScanner({ personen, onSubmit, onClose }: Props) {
   function handleFile(ev: React.ChangeEvent<HTMLInputElement>) {
     const file = ev.target.files?.[0]
     if (!file) return
+
+    if (file.size > 20 * 1024 * 1024) {
+      setErrorMsg('Datei ist zu groß (max. 20 MB)')
+      setPhase('error')
+      return
+    }
+
     setImageFile(file)
 
-    if (file.type === 'application/pdf') {
+    if (isPdfFile(file)) {
       setIsPdf(true)
       setPdfName(file.name)
       setImageUrl('')
@@ -52,6 +60,7 @@ export default function ReceiptScanner({ personen, onSubmit, onClose }: Props) {
     if (!imageFile) return
     setPhase('scanning')
     setProgress(0)
+    setErrorMsg('')
     try {
       let res: ScanResult
       if (isPdf) {
@@ -64,7 +73,8 @@ export default function ReceiptScanner({ personen, onSubmit, onClose }: Props) {
       setBeschreibung(res.beschreibung)
       setKategorie(res.kategorie)
       setPhase('results')
-    } catch {
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Unbekannter Fehler')
       setPhase('error')
     }
   }
@@ -75,6 +85,7 @@ export default function ReceiptScanner({ personen, onSubmit, onClose }: Props) {
     setImageFile(null)
     setIsPdf(false)
     setPdfName('')
+    setErrorMsg('')
     setResult(null)
     setBetrag('')
     setBeschreibung('')
@@ -112,7 +123,7 @@ export default function ReceiptScanner({ personen, onSubmit, onClose }: Props) {
 
         <div className="p-5">
           <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
-          <input ref={uploadRef} type="file" accept="image/*,application/pdf" onChange={handleFile} className="hidden" />
+          <input ref={uploadRef} type="file" accept="image/*,application/pdf,.pdf" onChange={handleFile} className="hidden" />
 
           {phase === 'capture' && (
             <div className="text-center py-8">
@@ -179,7 +190,7 @@ export default function ReceiptScanner({ personen, onSubmit, onClose }: Props) {
                 <AlertTriangle size={28} className="text-red-600 dark:text-red-400" />
               </div>
               <h3 className="font-semibold text-navy-900 dark:text-white mb-2">Fehler beim {isPdf ? 'Auslesen' : 'Scannen'}</h3>
-              <p className="text-sm text-navy-400 dark:text-gray-500 mb-4">Der Beleg konnte nicht verarbeitet werden</p>
+              <p className="text-sm text-navy-400 dark:text-gray-500 mb-4">{errorMsg || 'Der Beleg konnte nicht verarbeitet werden'}</p>
               <button onClick={handleReset}
                 className="px-6 py-2.5 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800">
                 Erneut versuchen
