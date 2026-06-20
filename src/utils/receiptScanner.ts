@@ -1,4 +1,5 @@
 import { createWorker } from 'tesseract.js'
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import type { Ausgabe } from '../types'
 
 export interface ScanResult {
@@ -94,7 +95,7 @@ export async function scanPdf(
   onProgress(10, 'PDF wird geladen...')
 
   const pdfjsLib = await import('pdfjs-dist')
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl
 
   const arrayBuffer = await pdfFile.arrayBuffer()
   onProgress(30, 'Text wird extrahiert...')
