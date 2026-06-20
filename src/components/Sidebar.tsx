@@ -7,7 +7,6 @@ import {
   PiggyBank,
   Wallet,
   Lightbulb,
-  Menu,
   X,
   LogOut,
   KeyRound,
@@ -36,6 +35,8 @@ interface Props {
   syncStatus: 'idle' | 'syncing' | 'synced' | 'offline'
   dark: boolean
   onToggleDark: () => void
+  mobileOpen: boolean
+  onMobileClose: () => void
 }
 
 const syncLabels = {
@@ -45,26 +46,17 @@ const syncLabels = {
   offline: { icon: CloudOff, text: 'Offline-Modus', color: 'text-red-400' },
 }
 
-export default function Sidebar({ currentUser, onLogout, syncStatus, dark, onToggleDark }: Props) {
-  const [mobileOpen, setMobileOpen] = useState(false)
+export default function Sidebar({ currentUser, onLogout, syncStatus, dark, onToggleDark, mobileOpen, onMobileClose }: Props) {
   const [pwModalOpen, setPwModalOpen] = useState(false)
 
   const initials = currentUser.slice(0, 2).toUpperCase()
 
   return (
     <>
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed left-4 z-50 bg-navy-900 text-white p-2 rounded-lg shadow-lg"
-        style={{ top: 'calc(var(--sat) + 1rem)' }}
-      >
-        <Menu size={24} />
-      </button>
-
       {mobileOpen && (
         <div
           className="md:hidden fixed inset-0 bg-black/40 z-40"
-          onClick={() => setMobileOpen(false)}
+          onClick={onMobileClose}
         />
       )}
 
@@ -86,7 +78,7 @@ export default function Sidebar({ currentUser, onLogout, syncStatus, dark, onTog
               </div>
             </div>
             <button
-              onClick={() => setMobileOpen(false)}
+              onClick={onMobileClose}
               className="md:hidden text-navy-400 hover:text-white"
             >
               <X size={20} />
@@ -94,12 +86,12 @@ export default function Sidebar({ currentUser, onLogout, syncStatus, dark, onTog
           </div>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {navItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
-              onClick={() => setMobileOpen(false)}
+              onClick={onMobileClose}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive

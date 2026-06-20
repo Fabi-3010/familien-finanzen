@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
+import BottomNav from './components/BottomNav'
 import Dashboard from './pages/Dashboard'
 import Einkommen from './pages/Einkommen'
 import Fixkosten from './pages/Fixkosten'
@@ -16,6 +18,7 @@ export default function App() {
   const { daten, updateDaten, syncStatus } = useFinanzDaten()
   const { currentUser, loading, login, logout } = useAuth()
   const { dark, toggle: toggleDark } = useDarkMode()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   if (loading) {
     return (
@@ -31,8 +34,16 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen bg-navy-50 dark:bg-slate-950">
-      <Sidebar currentUser={currentUser} onLogout={logout} syncStatus={syncStatus} dark={dark} onToggleDark={toggleDark} />
-      <main className="flex-1 md:ml-0 p-4 md:p-6 lg:p-8 main-safe-top">
+      <Sidebar
+        currentUser={currentUser}
+        onLogout={logout}
+        syncStatus={syncStatus}
+        dark={dark}
+        onToggleDark={toggleDark}
+        mobileOpen={menuOpen}
+        onMobileClose={() => setMenuOpen(false)}
+      />
+      <main className="flex-1 md:ml-0 p-4 md:p-6 lg:p-8 main-safe-top pb-24 md:pb-8">
         <Routes>
           <Route path="/" element={<Dashboard daten={daten} currentUser={currentUser} />} />
           <Route path="/einkommen" element={<Einkommen daten={daten} updateDaten={updateDaten} />} />
@@ -43,6 +54,7 @@ export default function App() {
           <Route path="/analyse" element={<Analyse daten={daten} />} />
         </Routes>
       </main>
+      <BottomNav onOpenMenu={() => setMenuOpen(true)} />
     </div>
   )
 }
