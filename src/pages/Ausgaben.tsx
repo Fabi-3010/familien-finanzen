@@ -86,7 +86,7 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 mb-4">
         <div className="flex items-center gap-2 mb-3">
           <Filter size={16} className="text-navy-400 dark:text-gray-500" />
-          <span className="text-sm font-medium text-navy-700">Filter</span>
+          <span className="text-sm font-medium text-navy-700 dark:text-gray-300">Filter</span>
         </div>
         <div className="flex flex-wrap gap-3">
           <input type="month" value={filterMonat} onChange={e => setFilterMonat(e.target.value)}
@@ -104,7 +104,7 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
           <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <ShoppingCart size={28} className="text-orange-600" />
           </div>
-          <h3 className="font-semibold text-navy-900 mb-2">Keine Ausgaben gefunden</h3>
+          <h3 className="font-semibold text-navy-900 dark:text-white mb-2">Keine Ausgaben gefunden</h3>
           <p className="text-sm text-navy-400 dark:text-gray-500 mb-4">Erfasse deine täglichen Ausgaben</p>
           <div className="flex justify-center gap-3">
             <button onClick={() => setScannerOpen(true)} className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 flex items-center gap-1.5">
@@ -118,26 +118,26 @@ export default function Ausgaben({ daten, updateDaten }: Props) {
       ) : (
         <div className="space-y-2">
           {gefiltert.map(a => (
-            <div key={a.id} className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
+            <div key={a.id} className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700">
+              <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                   style={{ backgroundColor: (KATEGORIE_FARBEN[a.kategorie] || '#94a3b8') + '20' }}>
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: KATEGORIE_FARBEN[a.kategorie] || '#94a3b8' }} />
                 </div>
-                <div className="min-w-0">
-                  <p className="font-medium text-navy-900 truncate">{a.beschreibung}</p>
-                  <p className="text-xs text-navy-400 dark:text-gray-500">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-navy-900 dark:text-white truncate">{a.beschreibung}</p>
+                  <p className="text-xs text-navy-400 dark:text-gray-400">
                     {AUSGABE_KATEGORIEN[a.kategorie]} · {a.person} · {new Date(a.datum).toLocaleDateString('de-DE')}
                   </p>
                 </div>
+                <span className="text-base font-bold text-red-500 shrink-0">-{formatEuro(a.betrag)}</span>
               </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <span className="text-base font-bold text-red-500 mr-1">-{formatEuro(a.betrag)}</span>
-                <button onClick={() => setEditAusgabe(a)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                  <Pencil size={14} className="text-navy-400 dark:text-gray-500" />
+              <div className="flex items-center justify-end gap-1 mt-2 pt-2 border-t border-gray-100 dark:border-slate-700">
+                <button onClick={() => setEditAusgabe(a)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-navy-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                  <Pencil size={13} /> Bearbeiten
                 </button>
-                <button onClick={() => handleDelete(a.id)} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
-                  <Trash2 size={14} className="text-red-400" />
+                <button onClick={() => handleDelete(a.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
+                  <Trash2 size={13} /> Löschen
                 </button>
               </div>
             </div>

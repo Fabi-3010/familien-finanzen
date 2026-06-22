@@ -46,7 +46,7 @@ export default function Versicherungen({ daten, updateDaten }: Props) {
           <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Shield size={28} className="text-indigo-600" />
           </div>
-          <h3 className="font-semibold text-navy-900 mb-2">Keine Versicherungen erfasst</h3>
+          <h3 className="font-semibold text-navy-900 dark:text-white mb-2">Keine Versicherungen erfasst</h3>
           <p className="text-sm text-navy-400 dark:text-gray-500 mb-4">Behalte den Überblick über all deine Policen</p>
           <button onClick={() => setModalOpen(true)} className="px-4 py-2 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800">
             Jetzt hinzufügen

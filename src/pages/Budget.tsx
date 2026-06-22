@@ -42,6 +42,10 @@ export default function Budget({ daten }: Props) {
     }))
     .sort((a, b) => b.betrag - a.betrag)
 
+  const isDark = document.documentElement.classList.contains('dark')
+  const chartTickFill = isDark ? '#94a3b8' : undefined
+  const tooltipStyle = { borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', fontSize: '13px', background: isDark ? '#1e293b' : '#fff', color: isDark ? '#e2e8f0' : '#1e293b' }
+
   const letzteMonateData = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(selY, selM - 1 - i, 1)
     const monat = d.toLocaleDateString('de-DE', { month: 'short' })
@@ -70,43 +74,43 @@ export default function Budget({ daten }: Props) {
           <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <PiggyBank size={28} className="text-amber-600" />
           </div>
-          <h3 className="font-semibold text-navy-900 mb-2">Budget-Planung starten</h3>
+          <h3 className="font-semibold text-navy-900 dark:text-white mb-2">Budget-Planung starten</h3>
           <p className="text-sm text-navy-400 dark:text-gray-500">Füge zuerst dein Einkommen hinzu, um dein Budget zu berechnen</p>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp size={16} className="text-emerald-500" />
-                <span className="text-xs font-medium text-navy-500">Budget für Ausgaben</span>
+                <span className="text-xs font-medium text-navy-500 dark:text-gray-400">Budget für Ausgaben</span>
               </div>
               <p className="text-xl font-bold text-navy-900 dark:text-gray-100">{formatEuro(budgetFuerAusgaben)}</p>
               <p className="text-xs text-navy-400 dark:text-gray-500">Einkommen minus Festkosten</p>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingDown size={16} className="text-orange-500" />
-                <span className="text-xs font-medium text-navy-500">Ausgegeben</span>
+                <span className="text-xs font-medium text-navy-500 dark:text-gray-400">Ausgegeben</span>
               </div>
               <p className="text-xl font-bold text-navy-900 dark:text-gray-100">{formatEuro(ausgabenGesamt)}</p>
               <p className="text-xs text-navy-400 dark:text-gray-500">{verbrauchProzent.toFixed(0)}% vom Budget</p>
             </div>
-            <div className={`rounded-2xl p-4 shadow-sm border ${restBudget >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'}`}>
+            <div className={`rounded-2xl p-4 shadow-sm border ${restBudget >= 0 ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-800/50' : 'bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-800/50'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {restBudget >= 0 ? <CheckCircle size={16} className="text-emerald-500" /> : <AlertCircle size={16} className="text-red-500" />}
-                <span className={`text-xs font-medium ${restBudget >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                <span className={`text-xs font-medium ${restBudget >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
                   {restBudget >= 0 ? 'Noch verfügbar' : 'Überzogen'}
                 </span>
               </div>
-              <p className={`text-xl font-bold ${restBudget >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+              <p className={`text-xl font-bold ${restBudget >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
                 {formatEuro(Math.abs(restBudget))}
               </p>
             </div>
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 mb-6">
-            <h2 className="text-base font-semibold text-navy-950 mb-3">Budget-Fortschritt</h2>
+            <h2 className="text-base font-semibold text-navy-950 dark:text-white mb-3">Budget-Fortschritt</h2>
             <div className="h-4 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden mb-2">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
@@ -123,8 +127,8 @@ export default function Budget({ daten }: Props) {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100">
-              <h2 className="text-base font-semibold text-navy-950 mb-4">Ausgaben nach Kategorie</h2>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
+              <h2 className="text-base font-semibold text-navy-950 dark:text-white mb-4">Ausgaben nach Kategorie</h2>
               {kategorieAusgaben.length > 0 ? (
                 <div className="space-y-3">
                   {kategorieAusgaben.map((k, i) => {
@@ -134,7 +138,7 @@ export default function Budget({ daten }: Props) {
                         <div className="flex justify-between text-sm mb-1">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: k.color }} />
-                            <span className="text-navy-700">{k.kategorie}</span>
+                            <span className="text-navy-700 dark:text-gray-300">{k.kategorie}</span>
                           </div>
                           <span className="font-medium text-navy-900 dark:text-gray-100">{formatEuro(k.betrag)}</span>
                         </div>
@@ -146,21 +150,21 @@ export default function Budget({ daten }: Props) {
                   })}
                 </div>
               ) : (
-                <p className="text-center py-8 text-navy-400 text-sm">Keine Ausgaben im gewählten Monat</p>
+                <p className="text-center py-8 text-navy-400 dark:text-gray-500 text-sm">Keine Ausgaben im gewählten Monat</p>
               )}
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100">
-              <h2 className="text-base font-semibold text-navy-950 mb-4">Letzte 6 Monate</h2>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
+              <h2 className="text-base font-semibold text-navy-950 dark:text-white mb-4">Letzte 6 Monate</h2>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={letzteMonateData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="monat" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
-                    <Tooltip formatter={(value) => formatEuro(Number(value))} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e5e7eb'} vertical={false} />
+                    <XAxis dataKey="monat" tick={{ fontSize: 12, fill: chartTickFill }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 12, fill: chartTickFill }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+                    <Tooltip formatter={(value) => formatEuro(Number(value))} contentStyle={tooltipStyle} />
                     <Bar dataKey="ausgaben" fill="#f97316" radius={[6, 6, 0, 0]} name="Ausgaben" />
-                    <Bar dataKey="budget" fill="#e5e7eb" radius={[6, 6, 0, 0]} name="Budget" />
+                    <Bar dataKey="budget" fill={isDark ? '#334155' : '#e5e7eb'} radius={[6, 6, 0, 0]} name="Budget" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

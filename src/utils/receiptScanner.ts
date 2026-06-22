@@ -98,11 +98,10 @@ export async function scanPdf(
 ): Promise<ScanResult> {
   onProgress(10, 'PDF wird geladen...')
 
+  // Import worker module first — registers globalThis.pdfjsWorker so pdfjs
+  // uses main-thread processing without needing a workerSrc URL
+  await import('pdfjs-dist/build/pdf.worker.min.mjs')
   const pdfjsLib = await import('pdfjs-dist')
-
-  // Disable web worker — run on main thread for maximum compatibility
-  // Receipts are small PDFs, so main-thread processing is fast enough
-  pdfjsLib.GlobalWorkerOptions.workerSrc = ''
 
   const arrayBuffer = await pdfFile.arrayBuffer()
   onProgress(30, 'Text wird extrahiert...')

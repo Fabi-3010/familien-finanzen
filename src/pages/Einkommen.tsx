@@ -77,7 +77,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
         <Wallet size={28} className="text-emerald-600" />
       </div>
-      <h3 className="font-semibold text-navy-900 mb-2">Kein Einkommen erfasst</h3>
+      <h3 className="font-semibold text-navy-900 dark:text-white mb-2">Kein Einkommen erfasst</h3>
       <p className="text-sm text-navy-400 dark:text-gray-500 mb-4">Füge dein monatliches Einkommen hinzu</p>
       <button onClick={onAdd} className="px-4 py-2 bg-navy-900 text-white rounded-xl text-sm font-medium hover:bg-navy-800">
         Jetzt hinzufügen
