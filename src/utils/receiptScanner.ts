@@ -1,4 +1,3 @@
-import { createWorker } from 'tesseract.js'
 import type { Ausgabe } from '../types'
 
 export interface ScanResult {
@@ -69,7 +68,8 @@ export async function scanReceipt(
 ): Promise<ScanResult> {
   onProgress(5, 'OCR-Engine wird geladen...')
 
-  const worker = await createWorker('deu', undefined, {
+  const { createWorker: createTessWorker } = await import('tesseract.js')
+  const worker = await createTessWorker('deu', undefined, {
     logger: m => {
       if (m.status === 'recognizing text') {
         onProgress(20 + Math.round(m.progress * 60), 'Text wird erkannt...')
@@ -103,52 +103,90 @@ function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
 
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.0.227'
 
+async function ocrPdfPages(
+  pdfjsLib: typeof import('pdfjs-dist'),
+  data: Uint8Array,
+  onProgress: (p: number, s: string) => void
+): Promise<string> {
+  onProgress(40, 'PDF wird gerendert...')
+  const pdf = await pdfjsLib.getDocument({
+    data: data.slice(),
+    stopAtErrors: false,
+  }).promise
+
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')!
+  let fullText = ''
+  const pageCount = Math.min(pdf.numPages, 3)
+
+  const { createWorker } = await import('tesseract.js')
+  const worker = await createWorker('deu')
+
+  for (let i = 1; i <= pageCount; i++) {
+    onProgress(40 + Math.round((i / pageCount) * 45), `OCR Seite ${i}/${pageCount}...`)
+    const page = await pdf.getPage(i)
+    const viewport = page.getViewport({ scale: 2 })
+    canvas.width = viewport.width
+    canvas.height = viewport.height
+    await page.render({ canvas, canvasContext: ctx, viewport }).promise
+    const { data: ocrData } = await worker.recognize(canvas)
+    fullText += ocrData.text + '\n'
+  }
+
+  await worker.terminate()
+  return fullText
+}
+
 export async function scanPdf(
   pdfFile: File,
   onProgress: (progress: number, status: string) => void
 ): Promise<ScanResult> {
   onProgress(10, 'PDF wird geladen...')
 
-  // Import worker module first — registers globalThis.pdfjsWorker so pdfjs
-  // uses main-thread processing without needing a workerSrc URL
   await import('pdfjs-dist/build/pdf.worker.min.mjs')
   const pdfjsLib = await import('pdfjs-dist')
 
   const arrayBuffer = await readFileAsArrayBuffer(pdfFile)
+  const data = new Uint8Array(arrayBuffer)
   onProgress(30, 'Text wird extrahiert...')
 
-  const docParams = {
-    data: new Uint8Array(arrayBuffer),
-    useSystemFonts: true,
-    stopAtErrors: false,
-    cMapUrl: `${PDFJS_CDN}/cmaps/`,
-    cMapPacked: true,
-    standardFontDataUrl: `${PDFJS_CDN}/standard_fonts/`,
-  }
-
-  let pdf
-  try {
-    pdf = await pdfjsLib.getDocument(docParams).promise
-  } catch {
-    pdf = await pdfjsLib.getDocument({
-      ...docParams,
-      useSystemFonts: false,
-    }).promise
-  }
-
   let fullText = ''
-  const pageCount = Math.min(pdf.numPages, 5)
-  for (let i = 1; i <= pageCount; i++) {
-    onProgress(30 + Math.round((i / pageCount) * 50), `Seite ${i}/${pageCount}...`)
+
+  // Try pdfjs text extraction first (fast path)
+  try {
+    const pdf = await pdfjsLib.getDocument({
+      data: data.slice(),
+      useSystemFonts: true,
+      stopAtErrors: false,
+      cMapUrl: `${PDFJS_CDN}/cmaps/`,
+      cMapPacked: true,
+      standardFontDataUrl: `${PDFJS_CDN}/standard_fonts/`,
+    }).promise
+
+    const pageCount = Math.min(pdf.numPages, 5)
+    for (let i = 1; i <= pageCount; i++) {
+      onProgress(30 + Math.round((i / pageCount) * 40), `Seite ${i}/${pageCount}...`)
+      try {
+        const page = await pdf.getPage(i)
+        const content = await page.getTextContent()
+        const pageText = content.items
+          .map((item) => 'str' in item ? item.str : '')
+          .join(' ')
+        fullText += pageText + '\n'
+      } catch {
+        // Skip pages that fail
+      }
+    }
+  } catch {
+    // pdfjs text extraction failed entirely
+  }
+
+  // Fallback: render PDF pages to canvas and OCR them
+  if (!fullText.trim()) {
     try {
-      const page = await pdf.getPage(i)
-      const content = await page.getTextContent()
-      const pageText = content.items
-        .map((item) => 'str' in item ? item.str : '')
-        .join(' ')
-      fullText += pageText + '\n'
+      fullText = await ocrPdfPages(pdfjsLib, data, onProgress)
     } catch {
-      // Skip pages that fail to parse
+      throw new Error('PDF konnte nicht verarbeitet werden. Versuche stattdessen ein Foto.')
     }
   }
 
@@ -163,6 +201,6 @@ export async function scanPdf(
     beschreibung: extractStoreName(fullText),
     kategorie: detectCategory(fullText),
     rawText: fullText,
-    confidence: 95,
+    confidence: 85,
   }
 }
