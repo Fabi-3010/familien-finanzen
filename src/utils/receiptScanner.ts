@@ -33,7 +33,7 @@ export function detectCategory(text: string): Ausgabe['kategorie'] {
 
 export function extractAmount(text: string): number | null {
   const totalPatterns = [
-    /(?:summe|total|gesamt|zu zahlen|betrag|endbetrag|gesamtbetrag|bar|ec)[:\s]*€?\s*(\d{1,6}[,.]\d{2})/gi,
+    /(?:zahlungsbetrag|rechnungsbetrag|summe|total|gesamt|zu zahlen|betrag|endbetrag|gesamtbetrag|bar|ec)[:\s]*€?\s*(\d{1,6}[,.]\d{2})/gi,
     /(\d{1,6}[,.]\d{2})\s*(?:eur|€)/gi,
   ]
 
@@ -101,6 +101,8 @@ function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
   })
 }
 
+const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.0.227'
+
 export async function scanPdf(
   pdfFile: File,
   onProgress: (progress: number, status: string) => void
@@ -115,20 +117,22 @@ export async function scanPdf(
   const arrayBuffer = await readFileAsArrayBuffer(pdfFile)
   onProgress(30, 'Text wird extrahiert...')
 
+  const docParams = {
+    data: new Uint8Array(arrayBuffer),
+    useSystemFonts: true,
+    stopAtErrors: false,
+    cMapUrl: `${PDFJS_CDN}/cmaps/`,
+    cMapPacked: true,
+    standardFontDataUrl: `${PDFJS_CDN}/standard_fonts/`,
+  }
+
   let pdf
   try {
-    pdf = await pdfjsLib.getDocument({
-      data: new Uint8Array(arrayBuffer),
-      useSystemFonts: true,
-      stopAtErrors: false,
-      cMapPacked: true,
-    }).promise
+    pdf = await pdfjsLib.getDocument(docParams).promise
   } catch {
-    // Retry without useSystemFonts
     pdf = await pdfjsLib.getDocument({
-      data: new Uint8Array(arrayBuffer),
-      stopAtErrors: false,
-      cMapPacked: true,
+      ...docParams,
+      useSystemFonts: false,
     }).promise
   }
 
