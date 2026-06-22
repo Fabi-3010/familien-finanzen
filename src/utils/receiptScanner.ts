@@ -92,6 +92,15 @@ export async function scanReceipt(
   }
 }
 
+function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as ArrayBuffer)
+    reader.onerror = () => reject(new Error('Datei konnte nicht gelesen werden'))
+    reader.readAsArrayBuffer(file)
+  })
+}
+
 export async function scanPdf(
   pdfFile: File,
   onProgress: (progress: number, status: string) => void
@@ -103,24 +112,40 @@ export async function scanPdf(
   await import('pdfjs-dist/build/pdf.worker.min.mjs')
   const pdfjsLib = await import('pdfjs-dist')
 
-  const arrayBuffer = await pdfFile.arrayBuffer()
+  const arrayBuffer = await readFileAsArrayBuffer(pdfFile)
   onProgress(30, 'Text wird extrahiert...')
 
-  const pdf = await pdfjsLib.getDocument({
-    data: new Uint8Array(arrayBuffer),
-    useSystemFonts: true,
-  }).promise
-  let fullText = ''
+  let pdf
+  try {
+    pdf = await pdfjsLib.getDocument({
+      data: new Uint8Array(arrayBuffer),
+      useSystemFonts: true,
+      stopAtErrors: false,
+      cMapPacked: true,
+    }).promise
+  } catch {
+    // Retry without useSystemFonts
+    pdf = await pdfjsLib.getDocument({
+      data: new Uint8Array(arrayBuffer),
+      stopAtErrors: false,
+      cMapPacked: true,
+    }).promise
+  }
 
+  let fullText = ''
   const pageCount = Math.min(pdf.numPages, 5)
   for (let i = 1; i <= pageCount; i++) {
     onProgress(30 + Math.round((i / pageCount) * 50), `Seite ${i}/${pageCount}...`)
-    const page = await pdf.getPage(i)
-    const content = await page.getTextContent()
-    const pageText = content.items
-      .map((item) => 'str' in item ? item.str : '')
-      .join(' ')
-    fullText += pageText + '\n'
+    try {
+      const page = await pdf.getPage(i)
+      const content = await page.getTextContent()
+      const pageText = content.items
+        .map((item) => 'str' in item ? item.str : '')
+        .join(' ')
+      fullText += pageText + '\n'
+    } catch {
+      // Skip pages that fail to parse
+    }
   }
 
   onProgress(90, 'Daten werden extrahiert...')
